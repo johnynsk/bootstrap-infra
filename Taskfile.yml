@@ -1,0 +1,78 @@
+version: '3'
+
+vars:
+  ENVIRONMENT: '{{.ENVIRONMENT}}'
+  TF_DIR: terraform
+  TF_VARS: environments/{{.ENVIRONMENT}}.tfvars
+  ANSIBLE_DIR: ansible
+  INVENTORY: "environment/{{.ENVIRONMENT}}/inventory.ini"
+
+silent: false
+
+tasks:
+  environment:generate:
+    desc: Interactively generate Terraform and Ansible files for one environment
+    cmds:
+      - 'printf "Environment name: "; read -r ENV_NAME; test -n "$ENV_NAME"; ./scripts/gen-env-files.sh "$ENV_NAME"'
+
+  deploy:
+    desc: Deploy infrastructure and run Ansible
+    cmds:
+      - task: terraform:apply
+      - task: ansible:apply
+
+  destroy:
+    desc: Destroy infrastructure for the selected environment
+    preconditions:
+      - sh: test "{{.ENVIRONMENT}}" != "production"
+        msg: "destroy is blocked for ENVIRONMENT=production"
+    cmds:
+      - task: terraform:destroy
+
+  terraform:init:
+    desc: Terraform init for the selected environment
+    dir: "{{.TF_DIR}}"
+    cmds:
+      - terraform init -lockfile=readonly
+
+  terraform:fmt:
+    desc: Terraform format for the selected environment
+    dir: "{{.TF_DIR}}"
+    cmds:
+      - terraform fmt -recursive
+
+  terraform:plan:
+    desc: Terraform plan for the selected environment
+    dir: "{{.TF_DIR}}"
+    cmds:
+      - terraform init -lockfile=readonly
+      - terraform plan -var-file={{.TF_VARS}}
+
+  terraform:apply:
+    desc: Terraform apply and generate the Ansible inventory
+    dir: "{{.TF_DIR}}"
+    cmds:
+      - terraform init -lockfile=readonly
+      - terraform apply -var-file={{.TF_VARS}}
+
+  terraform:destroy:
+    desc: Destroy the container in the selected environment
+    preconditions:
+      - sh: test "{{.ENVIRONMENT}}" != "production"
+        msg: "terraform:destroy is blocked for ENVIRONMENT=production"
+    dir: "{{.TF_DIR}}"
+    cmds:
+      - terraform init -lockfile=readonly
+      - terraform destroy -var-file={{.TF_VARS}}
+
+  ansible:galaxy:
+    desc: Install Ansible collections from requirements.yml
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-galaxy collection install -r requirements.yml
+
+  ansible:apply:
+    desc: Run site.yml
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook -i {{.INVENTORY}} playbooks/site.yml

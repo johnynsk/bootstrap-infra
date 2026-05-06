@@ -1,0 +1,10 @@
+proxmox_endpoint  = ""
+proxmox_api_token   = ""
+proxmox_ssh_private_key_file = ""
+
+ct_initial_password = ""
+ansible_private_key_path = ""
+ansible_public_key_path  = ""
+
+proxmox_ssh_user = ""
+proxmox_insecure = true

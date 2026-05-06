@@ -1,0 +1,12 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+terraform/environments/*.tfvars
+terraform/terraform.tfvars
+terraform/.terraform.lock.hcl
+
+!ansible/environment/*/.gitkeep
+!ansible/environment/*/group_vars/.gitkeep
