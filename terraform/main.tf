@@ -1,5 +1,5 @@
 locals {
-  container_name         = "${var.environment_name}-alpine-01"
+  container_name         = "bootstrap-infra-${var.environment_name}"
   ansible_inventory_path = "${path.module}/../ansible/environment/${var.environment_name}/inventory.ini"
 }
 
@@ -14,13 +14,13 @@ resource "proxmox_virtual_environment_container" "alpine" {
   }
 
   memory {
-    dedicated = 768
-    swap      = 512
+    dedicated = 256
+    swap      = 0
   }
 
   disk {
     datastore_id = "local-lvm"
-    size         = 8
+    size         = 1
   }
 
   initialization {
@@ -55,7 +55,7 @@ resource "proxmox_virtual_environment_container" "alpine" {
 
   started = true
 
-  tags = [var.environment_name, "alpine", "ansible"]
+  tags = [var.environment_name, "bootstrap-infra", "terraform", "ansible"]
 }
 
 resource "null_resource" "bootstrap_ct_ssh" {
@@ -63,7 +63,6 @@ resource "null_resource" "bootstrap_ct_ssh" {
 
   triggers = {
     ct_id      = tostring(proxmox_virtual_environment_container.alpine.vm_id)
-    public_key = trimspace(file(pathexpand(var.ansible_public_key_path)))
   }
 
   connection {

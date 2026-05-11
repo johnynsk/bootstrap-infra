@@ -4,8 +4,10 @@ set -eu
 ENV_NAME="${1:-}"
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 TF_ENV_DIR="$ROOT_DIR/terraform/environments"
-ANSIBLE_ENV_DIR="$ROOT_DIR/ansible/environment"
+ANSIBLE_ENV_DIR="$ROOT_DIR/ansible/environments"
 TF_EXAMPLE="$TF_ENV_DIR/env.tfvars.example"
+ENV_DIR="$ROOT_DIR/environments"
+ENV_EXAMPLE="$ROOT_DIR/environments"
 
 usage() {
   echo "Usage: $0 <env-name>"
@@ -18,8 +20,6 @@ usage() {
 
 cp "$TF_EXAMPLE" "$TF_ENV_DIR/$ENV_NAME.tfvars"
 mkdir -p "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars"
-: > "$ANSIBLE_ENV_DIR/.gitkeep"
-: > "$ANSIBLE_ENV_DIR/$ENV_NAME/.gitkeep"
 : > "$ANSIBLE_ENV_DIR/$ENV_NAME/inventory.ini"
-: > "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars/.gitkeep"
 : > "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars/$ENV_NAME.yml"
+cp "$ENV_EXAMPLE" "$ENV_DIR/$ENV_NAME.env"

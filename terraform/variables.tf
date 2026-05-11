@@ -46,6 +46,17 @@ variable "proxmox_api_token" {
   sensitive = true
 }
 
+variable "proxmox_api_username" {
+  type    = string
+  default = null
+}
+
+variable "proxmox_api_password" {
+  type      = string
+  sensitive = true
+  default   = null
+}
+
 variable "proxmox_insecure" {
   type    = bool
   default = true

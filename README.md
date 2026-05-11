@@ -24,10 +24,10 @@ ipv4_mode    = "dhcp"
 ## Commands
 
 ```bash
-task terraform:init ENVIRONMENT=dev-1
-task terraform:plan ENVIRONMENT=dev-1
-task terraform:apply ENVIRONMENT=dev-1
+task terraform:init
+task terraform:plan
+task terraform:apply
 task ansible:galaxy
-task ansible:apply ENVIRONMENT=dev-1
+task ansible:apply
 task environment:generate
 ```
