@@ -24,10 +24,17 @@ ipv4_mode    = "dhcp"
 ## Commands
 
 ```bash
+task environment:generate
+source environments/bootstrap-infra-dev-1.env
+task deploy
+task destroy
+```
+
+Our use manual operations:
+```bash
 task terraform:init
 task terraform:plan
 task terraform:apply
 task ansible:galaxy
 task ansible:apply
-task environment:generate
 ```
