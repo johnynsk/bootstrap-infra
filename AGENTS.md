@@ -3,6 +3,7 @@
 Purpose: keep automation in this repo predictable and minimal. Remember: KISS, DRY, YAGNI.
 When you're writing anything, firstly follow this instructions and secondly investigate and follow the industry standards.
 Any sensitive env information (such as postgres credentials) should be in a environments directory in format `<environment_name>.env`
+This project is globally-available, so any sensitive information (tokens, IPs, usernames, passwords) should be only in the environment-specific folders and be available for modifying via environment-variables.
 
 ## Documenting
 

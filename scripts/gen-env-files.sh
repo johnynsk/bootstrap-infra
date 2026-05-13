@@ -19,13 +19,58 @@ usage() {
   exit 1
 }
 
+require_file() {
+  if [ ! -f "$1" ]; then
+    echo "Missing template: $1" >&2
+    exit 1
+  fi
+}
+
+IS_SKIPPED=0
+write_if_missing() {
+  target="$1"
+  shift
+
+  if [ -e "$target" ]; then
+    IS_SKIPPED=1
+    echo "Skipping existing file: $target"
+    return 0
+  fi
+
+  tmp="$(mktemp)"
+  trap 'rm -f "$tmp"' EXIT HUP INT TERM
+  "$@" > "$tmp"
+  mv "$tmp" "$target"
+  trap - EXIT HUP INT TERM
+  rm -f "$tmp"
+}
+
 [ -n "$ENV_NAME" ] || usage
-# [ -f "$TF_EXAMPLE" ] || { echo "Missing template: $TF_EXAMPLE" >&2; exit 1; }
+
+require_file "$TF_TMPL_DIR/terraform.tfvars"
+require_file "$TF_TMPL_DIR/state.name.hcl"
+require_file "$ANSIBLE_TMPL_DIR/group_vars_all.yml"
+require_file "$ENV_EXAMPLE"
 
 mkdir -p "$TF_ENV_DIR/$ENV_NAME"
-ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$TF_TMPL_DIR/terraform.tfvars" > "$TF_ENV_DIR/$ENV_NAME/terraform.tfvars"
-ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$TF_TMPL_DIR/state.name.hcl"   > "$TF_ENV_DIR/$ENV_NAME/state.name.hcl"
+
+write_if_missing "$TF_ENV_DIR/$ENV_NAME/terraform.tfvars" sh -c \
+  'ENVIRONMENT="$1" PROJECT="bootstrap" envsubst < "$2"' sh "$ENV_NAME" "$TF_TMPL_DIR/terraform.tfvars"
+
+write_if_missing "$TF_ENV_DIR/$ENV_NAME/state.name.hcl" sh -c \
+  'ENVIRONMENT="$1" PROJECT="bootstrap" envsubst < "$2"' sh "$ENV_NAME" "$TF_TMPL_DIR/state.name.hcl"
+
 mkdir -p "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars"
-echo "---\n# Call terraform apply to fill out this inventory" > "$ANSIBLE_ENV_DIR/$ENV_NAME/inventory.yml"
-ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$ANSIBLE_TMPL_DIR/group_vars_all.yml" > "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars/all.yml"
-ENVIRONMENT="$ENV_NAME" envsubst < "$ENV_EXAMPLE" > "$ENV_DIR/$PROJECT-$ENV_NAME.env"
+
+write_if_missing "$ANSIBLE_ENV_DIR/$ENV_NAME/inventory.yml" sh -c \
+  'printf "%s\n" "---" "# Call terraform apply to fill out this inventory"' sh
+
+write_if_missing "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars/all.yml" sh -c \
+  'ENVIRONMENT="$1" PROJECT="bootstrap" envsubst < "$2"' sh "$ENV_NAME" "$ANSIBLE_TMPL_DIR/group_vars_all.yml"
+
+write_if_missing "$ENV_DIR/$PROJECT-$ENV_NAME.env" sh -c \
+  'ENVIRONMENT="$1" envsubst < "$2"' sh "$ENV_NAME" "$ENV_EXAMPLE"
+
+if [ -n "$IS_SKIPPED" ]; then
+  echo "To re-generate existing files, remove it first."
+fi
