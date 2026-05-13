@@ -8,6 +8,5 @@ bootstrap-app:
       pve_node: ${value.node_name}
 %{ endfor ~}
   vars:
-    ansible_user: root
     ansible_ssh_private_key_file: ${ansible_private_key_path}
     environment_name: ${environment_name}

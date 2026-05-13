@@ -51,7 +51,7 @@ tasks:
     dir: "{{.TF_DIR}}"
     cmds:
       - task: terraform:init
-      - terraform apply -var-file={{.TF_VARS}}
+      - terraform apply -var-file={{.TF_VARS}} -auto-approve
 
   terraform:destroy:
     desc: Destroy the container in the selected environment
@@ -61,7 +61,7 @@ tasks:
     dir: "{{.TF_DIR}}"
     cmds:
       - task: terraform:init
-      - terraform destroy -var-file={{.TF_VARS}}
+      - terraform destroy -var-file={{.TF_VARS}} -auto-approve
 
   ansible:galaxy:
     desc: Install Ansible collections from requirements.yml
@@ -73,4 +73,5 @@ tasks:
     desc: Run site.yml
     dir: "{{.ANSIBLE_DIR}}"
     cmds:
-      - ansible-playbook -i {{.INVENTORY}} playbooks/site.yml
+      - >-
+        ansible-playbook -i {{.INVENTORY}} -v playbooks/site.yml

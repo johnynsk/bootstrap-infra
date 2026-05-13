@@ -1,6 +1,6 @@
 resource "null_resource" "bootstrap_ct_ssh" {
-  for_each   = proxmox_virtual_environment_container.ve
-  depends_on = [proxmox_virtual_environment_container.ve]
+  for_each   = proxmox_virtual_environment_container.cts
+  depends_on = [proxmox_virtual_environment_container.cts]
 
   triggers = {
     ct_id = tostring(each.value.vm_id)
@@ -8,7 +8,7 @@ resource "null_resource" "bootstrap_ct_ssh" {
 
   connection {
     type        = "ssh"
-    host        = var.proxmox_ssh_host
+    host        = each.value.pve.ssh_host
     user        = var.proxmox_ssh_user
     private_key = file(pathexpand(var.proxmox_ssh_private_key_file))
     timeout     = "2m"

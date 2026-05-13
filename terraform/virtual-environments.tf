@@ -1,4 +1,4 @@
-resource "proxmox_virtual_environment_container" "ve" {
+resource "proxmox_virtual_environment_container" "cts" {
   for_each  = var.ves
   node_name = each.value.pve.node
   vm_id     = each.value.vm_id
@@ -20,7 +20,7 @@ resource "proxmox_virtual_environment_container" "ve" {
   }
 
   initialization {
-    hostname = each.key
+    hostname = each.value.hostname
 
     ip_config {
       ipv4 {

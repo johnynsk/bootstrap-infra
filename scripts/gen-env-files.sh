@@ -9,6 +9,7 @@ TF_DIR="$ROOT_DIR/terraform"
 TF_TMPL_DIR="$TF_DIR/templates"
 TF_ENV_DIR="$TF_DIR/environments"
 ANSIBLE_ENV_DIR="$ROOT_DIR/ansible/environments"
+ANSIBLE_TMPL_DIR="$ROOT_DIR/ansible/templates"
 ENV_DIR="$ROOT_DIR/environments"
 ENV_EXAMPLE="$ENV_DIR/template.env"
 
@@ -22,9 +23,9 @@ usage() {
 # [ -f "$TF_EXAMPLE" ] || { echo "Missing template: $TF_EXAMPLE" >&2; exit 1; }
 
 mkdir -p "$TF_ENV_DIR/$ENV_NAME"
-ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$TF_TMPL_DIR/terraform.tfvars.tmpl" > "$TF_ENV_DIR/$ENV_NAME/terraform.tfvars"
-ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$TF_TMPL_DIR/state.name.tmpl"       > "$TF_ENV_DIR/$ENV_NAME/state.name"
+ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$TF_TMPL_DIR/terraform.tfvars" > "$TF_ENV_DIR/$ENV_NAME/terraform.tfvars"
+ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$TF_TMPL_DIR/state.name.hcl"   > "$TF_ENV_DIR/$ENV_NAME/state.name.hcl"
 mkdir -p "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars"
-echo "---\n# Managed by terraform": > "$ANSIBLE_ENV_DIR/$ENV_NAME/inventory.yml"
-: > "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars/all.yml"
+echo "---\n# Call terraform apply to fill out this inventory" > "$ANSIBLE_ENV_DIR/$ENV_NAME/inventory.yml"
+ENVIRONMENT="$ENV_NAME" PROJECT="bootstrap" envsubst < "$ANSIBLE_TMPL_DIR/group_vars_all.yml" > "$ANSIBLE_ENV_DIR/$ENV_NAME/group_vars/all.yml"
 ENVIRONMENT="$ENV_NAME" envsubst < "$ENV_EXAMPLE" > "$ENV_DIR/$PROJECT-$ENV_NAME.env"

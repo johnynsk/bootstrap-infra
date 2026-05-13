@@ -1,0 +1,7 @@
+---
+hello_world_command: >-
+    echo \
+        host=$(hostname) \
+        ansible_host={{ ansible_host }} \
+        eth0=$(ip -4 -o addr show dev eth0 | awk '{print $4}' | cut -d/ -f1) \
+        uname="$(uname -a)"

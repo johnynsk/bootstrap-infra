@@ -6,8 +6,8 @@ resource "local_file" "ansible_inventory" {
   depends_on = [null_resource.bootstrap_ct_ssh]
 
   filename = local.ansible_inventory_path
-  content = templatefile("${path.module}/../ansible/templates/inventory.yml.tmpl", {
-    bootstrap_cts = [for name, ve in proxmox_virtual_environment_container.ve : {
+  content = templatefile("${path.module}/../ansible/templates/inventory.yml.hcl", {
+    bootstrap_cts = [for name, ve in proxmox_virtual_environment_container.cts : {
       name      = name
       ip        = ve.ipv4["eth0"]
       vm_id     = ve.vm_id
