@@ -2,6 +2,12 @@ variable "environment_name" {
   type = string
 }
 
+variable "project_name" {
+  type = string
+}
+
+variable "ves" {}
+
 variable "node_name" {
   type = string
 }
@@ -60,10 +66,6 @@ variable "proxmox_api_password" {
 variable "proxmox_insecure" {
   type    = bool
   default = true
-}
-
-variable "lxc_template_file_id" {
-  type = string
 }
 
 variable "ansible_private_key_path" {

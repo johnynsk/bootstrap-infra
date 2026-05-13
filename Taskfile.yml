@@ -3,11 +3,9 @@ version: '3'
 vars:
   ENVIRONMENT: '{{.ENVIRONMENT}}'
   TF_DIR: terraform
-  TF_VARS: environments/{{.ENVIRONMENT}}.tfvars
+  TF_VARS: environments/{{.ENVIRONMENT}}/terraform.tfvars
   ANSIBLE_DIR: ansible
-  INVENTORY: "environment/{{.ENVIRONMENT}}/inventory.ini"
-
-silent: false
+  INVENTORY: "environments/{{.ENVIRONMENT}}/inventory.yml"
 
 tasks:
   environment:generate:
@@ -33,7 +31,7 @@ tasks:
     desc: Terraform init for the selected environment
     dir: "{{.TF_DIR}}"
     cmds:
-      - terraform init -lockfile=readonly
+      - terraform init -backend-config=environments/{{.ENVIRONMENT}}/state.name -reconfigure
 
   terraform:fmt:
     desc: Terraform format for the selected environment
@@ -45,14 +43,14 @@ tasks:
     desc: Terraform plan for the selected environment
     dir: "{{.TF_DIR}}"
     cmds:
-      - terraform init -lockfile=readonly
+      - task: terraform:init
       - terraform plan -var-file={{.TF_VARS}}
 
   terraform:apply:
     desc: Terraform apply and generate the Ansible inventory
     dir: "{{.TF_DIR}}"
     cmds:
-      - terraform init -lockfile=readonly
+      - task: terraform:init
       - terraform apply -var-file={{.TF_VARS}}
 
   terraform:destroy:
@@ -62,7 +60,7 @@ tasks:
         msg: "terraform:destroy is blocked for ENVIRONMENT=production"
     dir: "{{.TF_DIR}}"
     cmds:
-      - terraform init -lockfile=readonly
+      - task: terraform:init
       - terraform destroy -var-file={{.TF_VARS}}
 
   ansible:galaxy:

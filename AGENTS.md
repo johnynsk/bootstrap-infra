@@ -10,13 +10,13 @@ Do not grow dramatically the Readme file.
 Document only necessary things, such as description, usage, troubleshooting in the docs/ dir.
 Documentation should be written in declarative style. Do not write documentation in style "fixed something and etc." When you're working on documentation, load the DocOps/Senior Tech Writer skills.
 
-## Ansible
+## Ansible and product code
 
 Any ansible code should be idempontent. Roles may be called in any order. They should be ready to be called from a new different playbook.
 Inventory should be only one per-environment. If one environment deploys multiple services, the inventory file should be one, as a terraform code.
 If you're planning to add a new role/collection, which already exists and implemented (in ansible galaxy), you should use it. It is covered by code and reporting all CVEs via dependency trackers and keeps my mind not to check sonarqube for every external plugin.
 
-If product uses integration with such service as postgres, it prepare role and database first, and clean-up it in case of teardown. 
+If product uses integration with such service as postgres, it prepare role and database first, and clean-up it in case of teardown.
 
 ## Scope
 
@@ -40,13 +40,11 @@ In some cases there could be extra task `ansible:teardown`
 
 ## Safety
 
-- `destroy` is blocked for `ENVIRONMENT=production`.
+- `destroy` is blocked for `ENVIRONMENT=prod`.
 - Terraform uses `init -lockfile=readonly`.
-- secrets stored in secrets.tfvars
 
 ## Layout
 
 - Terraform env files: `terraform/environments/<env>.tfvars`
-- Secrets: `terraform/secrets.tfvars`
-- Ansible inventory: `ansible/environment/<env>/inventory.ini`
-- Ansible group vars: `ansible/environment/<env>/group_vars/<env>.yml`
+- Ansible inventory: `ansible/environments/<env>/inventory.ini`
+- Ansible group vars: `ansible/environments/<env>/group_vars/<env>.yml`
